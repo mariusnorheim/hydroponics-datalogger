@@ -188,10 +188,6 @@ setInterval(() => {
 }, 10000);
 
 // Routes
-app.get('/', (req, res) => {
-  res.render('index');
-});
-
 app.get('/env_light', (req, res) => {
   res.render('env_light');
 });

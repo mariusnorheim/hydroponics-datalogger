@@ -15,11 +15,11 @@ module.exports = {
   },
   proxyTable: {
     '/api/env_light': {
-      target: 'http://localhost:{$express.port}',
+      target: 'http://localhost:4000',
       changeOrigin: true,
     },
     '/api/water_temp': {
-      target: 'http://localhost:{$express.port}',
+      target: 'http://localhost:4000',
       changeOrigin: true,
     },
   },
