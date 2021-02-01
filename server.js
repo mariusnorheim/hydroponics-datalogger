@@ -6,7 +6,7 @@ const logger = require('morgan');
 const path = require('path');
 const r = require('rethinkdb');
 
-const config = path.join('config.js');
+const config = path.join(`${__dirname}/config.js`);
 const app = express();
 
 app.use(bodyParser.json());
