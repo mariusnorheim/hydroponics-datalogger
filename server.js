@@ -24,10 +24,6 @@ function startExpress(connection) {
  * Connect to rethinkdb, create required assets
  * and then start express
  */
-/*
- * Connect to rethinkdb, create required assets
- * and then start express
- */
 async.waterfall([
   function connect(callback) {
     r.connect(config.rethinkdb, callback);
