@@ -24,6 +24,10 @@ function startExpress(connection) {
  * Connect to rethinkdb, create required assets
  * and then start express
  */
+/*
+ * Connect to rethinkdb, create required assets
+ * and then start express
+ */
 async.waterfall([
   function connect(callback) {
     r.connect(config.rethinkdb, callback);
@@ -61,7 +65,8 @@ async.waterfall([
   },
   // Wait for the index to be ready
   function waitForIndex(connection, callback) {
-    r.table('sensors').indexWait('date').run(connection, (err) => {
+    // eslint-disable-next-line no-unused-vars
+    r.table('sensors').indexWait('date').run(connection, (err, result) => {
       callback(err, connection);
     });
   },
