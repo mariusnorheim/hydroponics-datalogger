@@ -179,10 +179,7 @@ function saveSensorData() {
 
 // Emit sensor data on 10s intervals and save to database
 setInterval(() => {
-  saveSensorData({
-    sensorEnvLight,
-    sensorWaterTemp,
-  });
+  saveSensorData();
   console.log(getEnvLight(sensorEnvLight));
   console.log(getWaterTemp(sensorWaterTemp));
 }, 10000);
