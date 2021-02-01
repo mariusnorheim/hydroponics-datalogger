@@ -1,4 +1,5 @@
 # hydroponics-datalogger
+Node app for automatic controls, data logging and monitoring of a hydroponics system with an arduino uno
 
 ## Project setup
 ```
