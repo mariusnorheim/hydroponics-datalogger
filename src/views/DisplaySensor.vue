@@ -11,7 +11,10 @@
       Headline 1
     </v-card-title>
     <v-card-text>
-      <chart :chart-data="datacollection"></chart>
+      <chart
+        v-if="loaded"
+        :chartdata="datacollection"
+        :options="options"/>
     </v-card-text>
   </v-card>
 </template>
