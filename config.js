@@ -10,7 +10,17 @@ module.exports = {
   express: {
     port: 4000,
   },
-  cors: {
-    origin: 'http://localhost:8081',
+  // cors: {
+  // origin: 'http://localhost:8081',
+  // },
+  proxyTable: {
+    '/api/env_light': {
+      target: 'http://localhost:4000',
+      changeOrigin: true,
+    },
+    '/api/water_temp': {
+      target: 'http://localhost:4000',
+      changeOrigin: true,
+    },
   },
 };
