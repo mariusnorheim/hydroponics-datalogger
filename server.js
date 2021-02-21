@@ -2,15 +2,18 @@
 const express = require('express');
 const async = require('async');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const logger = require('morgan');
 const path = require('path');
 const r = require('rethinkdb');
 
-const config = path.join(`${__dirname}/config.js`);
+const config = path.join(`${__dirname}/config/index.js`);
+
 const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors(config.cors));
 app.use(logger('dev'));
 
 // Store the db connection and start listening on a port
@@ -80,7 +83,9 @@ async.waterfall([
 // Connect to microcontroller
 const five = require('johnny-five');
 
-const mcu = new five.Board();
+const mcu = new five.Board({
+  port: 'COM3',
+});
 let led; let sensorEnvLight; let sensorWaterTemp;
 // let sensorEnvTemp; let sensorEnvHumidity; let sensorWaterEC; let sensorWaterPH;
 
@@ -127,7 +132,8 @@ mcu.once('ready', () => {
 // Get environment light sensor data
 // eslint-disable-next-line no-shadow
 function getEnvLight(sensorEnvLight) {
-  return Math.round(sensorEnvLight.value / (1023 * 100));
+  // eslint-disable-next-line no-mixed-operators
+  return Math.round(sensorEnvLight.value / 1023 * 100);
 }
 // Get water temperature sensor data
 // eslint-disable-next-line no-shadow
@@ -138,8 +144,8 @@ function getWaterTemp(sensorWaterTemp) {
 // Get all historical data from a particular sensor
 function getAllSensorData(sensor, callback) {
   r.table('sensors')
-    .filter((m) => m.hasFields(sensor))
-    .orderBy('date').map((m) => [m('date'), m(sensor) || 0])
+    .pluck('date', sensor)
+    .orderBy('date')
     // eslint-disable-next-line consistent-return
     .run(app.rdbConn, (err, sensorData) => {
       if (err) {
@@ -169,6 +175,7 @@ function saveSensorData() {
     // water_ec: getWaterEC(sensorWaterEC),
     // water_ph: getWaterPH(sensorWaterPH)
   };
+  console.log('Saving sensor data.\n', sensorData);
 
   r.table('sensors').insert(sensorData).run(app.rdbConn)
     .then()
@@ -178,37 +185,37 @@ function saveSensorData() {
     });
 }
 
-// Emit sensor data on 10s intervals and save to database
+// Emit sensor data on 15s intervals and save to database
 setInterval(() => {
   saveSensorData();
-  console.log(getEnvLight(sensorEnvLight));
-  console.log(getWaterTemp(sensorWaterTemp));
-}, 10000);
-
-// Routes
-app.get('/env_light', (req, res) => {
-  res.render('env_light');
-});
-
-app.get('/water_temp', (req, res) => {
-  res.render('water_temp');
-});
+  // console.log(getEnvLight(sensorEnvLight), getWaterTemp(sensorWaterTemp));
+}, 60000);
 
 // Data routes
 app.get('/api/env_light', (req, res) => {
-  getAllEnvLightData((err, sensorData) => {
+  res.write(JSON.stringify(getEnvLight(sensorEnvLight)));
+  res.end();
+});
+
+app.get('/api/db/env_light', (req, res) => {
+  getAllEnvLightData((err, data) => {
     if (err) { console.log(err); }
 
-    res.write(JSON.stringify(sensorData));
+    res.write(JSON.stringify(data));
     res.end();
   });
 });
 
 app.get('/api/water_temp', (req, res) => {
-  getAllWaterTemperatureData((err, sensorData) => {
+  res.write(JSON.stringify(getWaterTemp(sensorWaterTemp)));
+  res.end();
+});
+
+app.get('/api/db/water_temp', (req, res) => {
+  getAllWaterTemperatureData((err, data) => {
     if (err) { console.log(err); }
 
-    res.write(JSON.stringify(sensorData));
+    res.write(JSON.stringify(data));
     res.end();
   });
 });
